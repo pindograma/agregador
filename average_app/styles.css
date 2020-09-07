@@ -1,0 +1,173 @@
+/*
+ * styles.css
+ * (c) 2020 CincoNoveSeis Jornalismo Ltda.
+ *
+ * This file is licensed under the GNU General Public License, version 3.
+*/
+
+.selectize-input::after {
+    visibility: hidden;
+}
+
+.pindograma-agg-title {
+    padding-top: 0px;
+    padding-left: 5px;
+    color: #8db33a;
+    border-style: solid;
+    border-width: 2px;
+    font-family: 'Fantasque Sans Mono';
+}
+
+.pindograma-form-prefix {
+    font-family: 'Fantasque Sans Mono';
+    font-size: 16px;
+}
+
+.pindograma-footer-container {
+  margin-left: 5%;
+  margin-right: 5%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.pindograma-footer {
+  font-family: 'Fantasque Sans Mono';
+  font-size: 12px;
+  color: #6e787f;
+}
+
+.pindograma-small {
+  font-size: 10px;
+  color: lightgray;
+  width: 150px;
+}
+
+.pindograma-small-footer {
+  margin-top: 10px;
+  font-size: 10px;
+  color: #6e787f;
+  font-family: 'Fantasque Sans Mono';
+}
+
+.pindograma-big-footer {
+  font-size: 14px;
+  color: #6e787f;
+  font-family: 'Fantasque Sans Mono';
+  text-align: center;
+}
+
+.pindograma-sorta-small {
+  font-size: 10px;
+  color: #6e787f;
+  width: 160px;
+}
+
+.pindograma-grade-container {
+  width: 50px;
+  font-size: 10px;
+  color: #6e787f;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.pindograma-grade {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  line-height: 37px;
+  border: 2px solid #6e787f;
+  color: #6e787f;
+  text-align: center;
+  font-size: 18px;
+}
+
+.pindograma-flex-container {
+  display: flex;
+  width: 200px;
+  justify-content: space-between;
+}
+
+.btn {
+    font-family: 'Fantasque Sans Mono';
+    font-size: 15px;
+}
+
+/* 16px is necessary so as not to screw up on the iPhone. */
+.selectize-input { font-family: 'Fantasque Sans Mono'; font-size: 16px; }
+.selectize-dropdown { font-family: 'Fantasque Sans Mono'; font-size: 16px; }
+
+.pindograma-vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+
+table {
+  font-family: 'Fantasque Sans Mono';
+  font-size: 14px;
+}
+
+thead {
+  border-bottom: 2px solid #d27103 !important;
+}
+
+td {
+  border-left: 2px solid #d27103;
+  border-right: 2px solid #d27103;
+  border-top: 2px solid #ffffff;
+  border-bottom: 2px solid #d27103;
+  vertical-align: middle !important;
+}
+
+tr {
+  border-bottom: 1px solid white;
+  border-top: 1px solid white;
+}
+
+tbody {
+  border-top: 3px solid #ffffff !important;
+  border-bottom: 2px solid #d27103;
+}
+
+th {
+  height: 100px;
+  vertical-align: bottom;
+  text-align: left;
+}
+
+.rotated-header-container {
+  width: 30px;
+}
+
+.rotated-header-content {
+  width: 110px;
+  transform-origin: bottom left;
+  transform: translate(43px, 9px) rotate(-45deg);
+  border-bottom: 2px solid #d27103;
+  line-height: 1;
+  padding-bottom: 3px;
+}
+
+.rotated-header td:not(:first-child) {
+  text-align: right;
+}
+
+@media (pointer:coarse) {
+  .cursor-pointer {
+    pointer-events: none !important;
+  }
+}
+
+.info hr {
+  background: #d27103;
+  height: 1px;
+}
+
+.info span {
+  color: #6e787f;
+  font-size: 10px;
+  font-family: 'Fantasque Sans Mono';
+}
