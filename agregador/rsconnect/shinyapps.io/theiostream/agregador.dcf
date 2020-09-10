@@ -1,0 +1,10 @@
+name: agregador
+title:
+username:
+account: theiostream
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2767411
+bundleId: 3612538
+url: https://pindograma.shinyapps.io/agregador/
+when: 1599690275.51436

@@ -247,13 +247,17 @@ ui <- fixedPage(
   useShinyjs(),
   
   tags$head(
+    HTML('<base target="_parent">'),
+    includeHTML('seo.html'),
     tags$script(src = 'update_window_size.js')
   ),
   
   fixedRow(
     column(3,
       class = 'col-lg-2 col-xs-12 img-responsive',
-      tags$img(src = 'LOGO.jpg', class = 'pindograma-logo')
+      tags$a(href = 'https://pindograma.com.br',
+        tags$img(src = 'LOGO.jpg', class = 'pindograma-logo')
+      )
     ),
     
     column(9,

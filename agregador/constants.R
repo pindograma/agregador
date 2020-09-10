@@ -7,7 +7,7 @@ mayor_years = c(2012, 2016, 2020)
 
 credits = 'O <i>Pindograma</i> não faz pesquisas eleitorais. Os resultados acima são de responsabilidade das empresas que os produziram.<br><br>A maior parte das pesquisas desse agregador foi coletada por <b>Pedro Fonseca, Maricélia Antonieto, Maria Clara Rodrigues, Raquel Fernandes, Natália Costard, Rodrigo Adinolfi, Fabrício Donnangelo,</b> e <b>Yasmin Bom</b>. Outra parte foi retirada do site <b>Poder360</b>. Os dados foram organizados por <b>Daniel Ferreira</b>, que também desenvolveu o agregador. Além dos números coletados pelo <i>Pindograma</i>, foram usados dados de candidatos, votações, e pesquisas eleitorais disponibilizados pelo Tribunal Superior Eleitoral. A íntegra das pesquisas coletadas pelo <i>Pindograma</i> está disponível sob a Open Database License, versão 1.0, e pode ser encontrada <a href="https://github.com/pindograma/dados">aqui</a>.'
 
-nota_string = 'Para saber como o <i>Pindograma</i> calcula a nota dos institutos de pesquisa, <a href="https://example.com">confira nossa metodologia</a>. E para saber como selecionamos as pesquisas no agregador e calculamos a média de cada candidato, <a href="https://example.com>clique aqui</a>.'
+nota_string = 'Para saber como o <i>Pindograma</i> calcula a nota dos institutos de pesquisa, <a href="https://example.com">confira nossa metodologia</a>. E para saber como selecionamos as pesquisas no agregador e calculamos a média de cada candidato, <a href="https://example.com">clique aqui</a>.'
 
 hired_string = 'Esta pesquisa foi contratada por uma campanha política.'
 probably_hired_string = 'Esta pesquisa foi contratada pelo próprio instituto.'
