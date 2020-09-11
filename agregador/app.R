@@ -519,14 +519,18 @@ server <- function(input, output, session) {
     
     legend_height = 20 * number_cands / input$width
     
-    output$legendPlot_copy = renderPlot({
-      plot_grid(get_legend(
-        plot + guides(col = guide_legend(ncol = input$width))
-      ))
-    })
-    output$legend_copy.ui = renderUI({
-      plotOutput('legendPlot_copy', height = legend_height)
-    })
+    if (input$width < 800) {
+      output$legendPlot_copy = renderPlot({
+        plot_grid(get_legend(
+          plot + guides(col = guide_legend(ncol = input$width))
+        ))
+      })
+      output$legend_copy.ui = renderUI({
+        plotOutput('legendPlot_copy', height = legend_height)
+      })
+    } else {
+      output$legend_copy.ui = renderUI({})
+    }
     
     our_polls_pre_output = our_polls %>%
       left_join(candlist %>% filter(ANO_ELEICAO == values$selected_year & SIGLA_UE == place & CODIGO_CARGO == cargo & NUM_TURNO == round), by = c(
