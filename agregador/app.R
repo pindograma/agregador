@@ -128,12 +128,14 @@ candlist20 = early_polls_2020 %>%
   group_by(SIGLA_UE) %>%
   mutate(party_name = '?', party = '?') %>%
   mutate(party_color = brew_cand_colors(n())) %>%
-  ungroup()
+  ungroup() %>%
+  mutate(NUM_TURNO = 1)
 
 fake_candlist = crossing(
   ANO_ELEICAO = c(2012, 2014, 2016, 2018, 2020),
   SIGLA_UE = cities$SG_UE,
-  CODIGO_CARGO = c(1, 3, 11)
+  CODIGO_CARGO = c(1, 3, 11),
+  NUM_TURNO = c(1, 2)
 ) %>%
   mutate(NUMERO_CANDIDATO = 99, NOME_URNA_CANDIDATO = 'BRANCOS / NULOS / OUTROS') %>%
   left_join(party_palette, by = c('NUMERO_CANDIDATO' = 'party'))
@@ -200,7 +202,8 @@ show_city_chart = function(yr, city, rnd, cargo = 11) {
       'year' = 'ANO_ELEICAO',
       'polled_UE' = 'SIGLA_UE',
       'CD_CARGO' = 'CODIGO_CARGO',
-      'NUMERO_CANDIDATO' = 'NUMERO_CANDIDATO'
+      'NUMERO_CANDIDATO' = 'NUMERO_CANDIDATO',
+      'turno' = 'NUM_TURNO'
     )) %>%
     mutate(NOME_URNA_CANDIDATO = str_to_title(paste0(NOME_URNA_CANDIDATO, '  ')))
   
@@ -209,7 +212,8 @@ show_city_chart = function(yr, city, rnd, cargo = 11) {
       'year' = 'ANO_ELEICAO',
       'polled_UE' = 'SIGLA_UE',
       'CD_CARGO' = 'CODIGO_CARGO',
-      'NUMERO_CANDIDATO' = 'NUMERO_CANDIDATO'
+      'NUMERO_CANDIDATO' = 'NUMERO_CANDIDATO',
+      'turno' = 'NUM_TURNO'
     )) %>%
     mutate(NOME_URNA_CANDIDATO = str_to_title(paste0(NOME_URNA_CANDIDATO, '  '))) %>%
     group_by(NUMERO_CANDIDATO) %>%
@@ -218,9 +222,6 @@ show_city_chart = function(yr, city, rnd, cargo = 11) {
   
   lbls = unique(d2_with_names$NOME_URNA_CANDIDATO)
   brks = unique(d2_with_names$party_color)
-  
-  print(lbls)
-  print(brks)
   
   crd = first(d1_with_names$candidate_registry_date)
   plot = ggplot(d2_with_names, aes(
@@ -528,11 +529,12 @@ server <- function(input, output, session) {
     })
     
     our_polls_pre_output = our_polls %>%
-      left_join(candlist %>% filter(ANO_ELEICAO == values$selected_year & SIGLA_UE == place & CODIGO_CARGO == cargo), by = c(
+      left_join(candlist %>% filter(ANO_ELEICAO == values$selected_year & SIGLA_UE == place & CODIGO_CARGO == cargo & NUM_TURNO == round), by = c(
         'NUMERO_CANDIDATO' = 'NUMERO_CANDIDATO'
       )) %>%
       left_join(rating %>% select(-pretty_name), by = 'company_id') %>%
       mutate(NOME_URNA_CANDIDATO = str_to_title(NOME_URNA_CANDIDATO)) %>%
+      filter(ANO_ELEICAO != 2018 | SG_UE != 'BR' | NUMERO_CANDIDATO != 13 | (NOME_URNA_CANDIDATO == 'Lula' & estimulada == 0) | (NOME_URNA_CANDIDATO == 'Fernando Haddad' & (estimulada == 1 | is.na(estimulada)))) %>% # URGENT FIXME
       pivot_wider(
         c(NR_IDENTIFICACAO_PESQUISA, DT_FIM_PESQUISA, DT_INICIO_PESQUISA,
           self_hired, partisan, pretty_name, imputed_ci, imputed_error, grade, hirer, estimulada),
