@@ -570,7 +570,11 @@ server <- function(input, output, session) {
         'pindograma-dend pindograma-dend'
       )) %>%
       mutate(Data = paste0(DT_INICIO_PESQUISA, ' - ', DT_FIM_PESQUISA)) %>%
-      mutate(Tipo = ifelse(estimulada == 0, 'Espontânea', 'Estimulada')) %>%
+      mutate(Tipo = case_when(
+        estimulada == 0 ~ 'Espontânea',
+        estimulada == 1 ~ 'Estimulada',
+        T ~ 'Desconhecido'
+      )) %>%
       mutate_if(is.numeric, function(x) round(x)) %>%
       mutate_if(is.numeric, function(x) ifelse(is.na(x), '', paste0(x, '%')))
     
