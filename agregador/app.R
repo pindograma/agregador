@@ -21,10 +21,43 @@ polls = read_csv('data/preprocessed_polls.csv')
 
 cities = read_csv('data/cities.csv') %>%
   expand_grid(year = c(2012, 2014, 2016, 2018, 2020)) %>%
-  semi_join(polls, by = c('SG_UE', 'year'))
+  semi_join(polls, by = c('SG_UE', 'year')) %>%
+  mutate(order = case_when(
+    SG_UE == '71072' ~ 1,
+    SG_UE == '60011' ~ 2,
+    SG_UE == '38490' ~ 3,
+    SG_UE == '13897' ~ 4,
+    SG_UE == '41238' ~ 5,
+    SG_UE == '02550' ~ 6,
+    SG_UE == '75353' ~ 7,
+    SG_UE == '25313' ~ 8,
+    SG_UE == '93734' ~ 9,
+    SG_UE == '04278' ~ 10,
+    SG_UE == '88013' ~ 11,
+    SG_UE == '09210' ~ 12,
+    SG_UE == '27855' ~ 13,
+    SG_UE == '90514' ~ 14,
+    SG_UE == '17612' ~ 15,
+    SG_UE == '12190' ~ 16,
+    SG_UE == '20516' ~ 17,
+    SG_UE == '31054' ~ 18,
+    SG_UE == '90670' ~ 19,
+    SG_UE == '00035' ~ 20,
+    SG_UE == '06050' ~ 21,
+    SG_UE == '81051' ~ 22,
+    SG_UE == '03018' ~ 23,
+    SG_UE == '01392' ~ 24,
+    SG_UE == '57053' ~ 25,
+    SG_UE == '73440' ~ 26,
+    T ~ Inf
+  ))
+
+place_cargo_opts = c('BR-1', cities %>% distinct(SG_UF) %>% filter(SG_UF != 'BR') %>% pull() %>% paste0('-3'))
+
+cities = cities %>% arrange(order)
 
 general_elections = tibble(
-  place_cargo = c('BR-1', cities %>% distinct(SG_UF) %>% filter(SG_UF != 'BR') %>% pull() %>% paste0('-3')),
+  place_cargo = place_cargo_opts,
   labels = c(
     'Brasil - Presidente',
     'Acre - Governador',
