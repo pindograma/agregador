@@ -5,6 +5,6 @@ account: theiostream
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2767411
-bundleId: 3625231
+bundleId: 3626102
 url: https://pindograma.shinyapps.io/agregador/
-when: 1600032831.81904
+when: 1600062973.8385
