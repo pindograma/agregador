@@ -622,6 +622,7 @@ server <- function(input, output, session) {
         'NUMERO_CANDIDATO' = 'NUMERO_CANDIDATO'
       )) %>%
       left_join(rating %>% select(-pretty_name), by = 'company_id') %>%
+      mutate(grade = ifelse(is.na(grade), '-', grade)) %>%
       mutate(NOME_URNA_CANDIDATO = str_to_title(NOME_URNA_CANDIDATO)) %>%
       filter(ANO_ELEICAO != 2018 | SG_UE != 'BR' | NUMERO_CANDIDATO != 13 | (NOME_URNA_CANDIDATO == 'Lula' & estimulada == 0) | (NOME_URNA_CANDIDATO == 'Fernando Haddad' & (estimulada == 1 | is.na(estimulada)))) %>% # URGENT FIXME
       pivot_wider(
