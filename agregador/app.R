@@ -11,6 +11,7 @@ library(shinyjs)
 library(cowplot)
 library(plotly)
 library(RColorBrewer)
+library(forcats)
 
 Rcpp::sourceCpp('polling_average.cpp')
 source('theme.R')
@@ -218,7 +219,8 @@ show_city_chart = function(yr, city, rnd, cargo = 11) {
     mutate(NOME_URNA_CANDIDATO = str_to_title(paste0(NOME_URNA_CANDIDATO, '  '))) %>%
     group_by(NUMERO_CANDIDATO) %>%
     mutate(NOME_URNA_CANDIDATO = ifelse(n_distinct(NOME_URNA_CANDIDATO) == 1, NOME_URNA_CANDIDATO, paste0('Candidato(a) do ', party_name, '  '))) %>%
-    ungroup()
+    ungroup() %>%
+    mutate(party_color = fct_rev(fct_reorder(factor(party_color), final_average, median, na.rm = T)))
   
   lbls = unique(d2_with_names$NOME_URNA_CANDIDATO)
   brks = unique(d2_with_names$party_color)
@@ -227,8 +229,8 @@ show_city_chart = function(yr, city, rnd, cargo = 11) {
   plot = ggplot(d2_with_names, aes(
     x = date,
     y = final_average,
-    color = factor(party_color), group = 1,
-    text = paste0('<b>', str_squish(NOME_URNA_CANDIDATO), '</b>: ', round(final_average), '%')
+    color = party_color, group = 1,
+    text = factor(paste0('<b>', str_squish(NOME_URNA_CANDIDATO), '</b>: ', round(final_average), '%'))
   )) +
     geom_line(size = 0.5) +
     geom_point(data = d1_with_names, aes(x = DT_FIM_PESQUISA, y = result, text = NA), alpha = 0.35, shape = 19, size = 1) +
@@ -361,8 +363,6 @@ server <- function(input, output, session) {
   
   observeEvent(input$current_or_not, {
     req(input$current_or_not, input$year)
-    
-    print('curr')
     
     if (input$current_or_not == '2020') {
       values$selected_year = 2020
