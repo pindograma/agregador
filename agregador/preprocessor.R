@@ -4,12 +4,17 @@
 # This file is licensed under the GNU General Public License, version 3.
 
 library(tidyverse)
+library(lubridate)
 
 early_polls = read_csv('data/early_polls.csv')
 late_polls = read_csv('data/late_polls.csv')
-early_polls_2020 = read_csv('data/early_polls_2020.csv')
 
-polls = bind_rows(early_polls, late_polls, early_polls_2020) %>%
+early_polls_2020 = read_csv('data/early_polls_2020_2.csv')
+
+recent_polls_2020 = read_csv('data/recent_polls_2020.csv') %>%
+  filter(DT_FIM_PESQUISA >= make_date(2020, 9, 1))
+
+polls = bind_rows(early_polls, late_polls, early_polls_2020, recent_polls_2020) %>%
   mutate(imputed_ci = case_when(
     is.na(confidence_interval_final) ~ '?',
     confidence_interval_final == 100 ~ '?',

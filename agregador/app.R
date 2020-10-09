@@ -17,12 +17,12 @@ Rcpp::sourceCpp('polling_average.cpp')
 source('theme.R')
 source('constants.R')
 
-early_polls_2020 = read_csv('data/early_polls_2020.csv')
-polls = read_csv('data/preprocessed_polls.csv')
+#early_polls_2020 = read_csv('data/early_polls_2020.csv')
+global_polls = read_csv('data/preprocessed_polls.csv')
 
 cities = read_csv('data/cities.csv') %>%
   expand_grid(year = c(2012, 2014, 2016, 2018, 2020)) %>%
-  semi_join(polls, by = c('SG_UE', 'year')) %>%
+  semi_join(global_polls, by = c('SG_UE', 'year')) %>%
   mutate(order = case_when(
     SG_UE == '71072' ~ 1,
     SG_UE == '60011' ~ 2,
@@ -91,17 +91,6 @@ general_elections = tibble(
   )
 )
 
-rating = read_csv('data/pollster_rating_2020_final.csv')
-
-candlist_old = read_csv('data/pindograma_candlist.csv') %>%
-  mutate(short = str_replace_all(NOME_URNA_CANDIDATO, 'PROFESSOR', 'PROF. ')) %>%
-  mutate(short = str_replace_all(short, '\\(.*?\\)', '')) %>%
-  mutate(short = str_squish(short)) %>%
-  mutate(short = ifelse(nchar(short) >= 21, word(short, start = 1, end = -2), short)) %>%
-  mutate(short = ifelse(nchar(short) >= 21, word(short, start = 1, end = -2), short)) %>%
-  mutate(NOME_URNA_CANDIDATO = str_squish(short)) %>%
-  left_join(party_palette, by = c('NUMERO_CANDIDATO' = 'party'))
-
 brew_cand_colors = function(n) {
   if (n < 3) {
     brks = if (n == 1) c('#9e0142') else c('#9e0142', '#3288bd')
@@ -116,21 +105,41 @@ brew_cand_colors = function(n) {
   brks
 }
 
-candlist20 = early_polls_2020 %>%
-  rename(ANO_ELEICAO = year, SIGLA_UE = SG_UE, CODIGO_CARGO = CD_CARGO) %>%
-  rename(NOME_URNA_CANDIDATO = candidate) %>%
-  distinct(ANO_ELEICAO, SIGLA_UE, CODIGO_CARGO, NOME_URNA_CANDIDATO, NUMERO_CANDIDATO) %>%
+rating = read_csv('data/pollster_rating_2020_final.csv')
+
+candlist_old = read_csv('data/pindograma_candlist.csv') %>%
   mutate(short = str_replace_all(NOME_URNA_CANDIDATO, 'PROFESSOR', 'PROF. ')) %>%
   mutate(short = str_replace_all(short, '\\(.*?\\)', '')) %>%
   mutate(short = str_squish(short)) %>%
   mutate(short = ifelse(nchar(short) >= 21, word(short, start = 1, end = -2), short)) %>%
   mutate(short = ifelse(nchar(short) >= 21, word(short, start = 1, end = -2), short)) %>%
   mutate(NOME_URNA_CANDIDATO = str_squish(short)) %>%
-  group_by(SIGLA_UE) %>%
-  mutate(party_name = '?', party = '?') %>%
-  mutate(party_color = brew_cand_colors(n())) %>%
-  ungroup() %>%
-  mutate(NUM_TURNO = 1)
+  left_join(party_palette, by = c('NUMERO_CANDIDATO' = 'party'))
+
+candlist_20_tse = read_csv('data/pindograma_candlist_2020.csv') %>%
+  mutate(short = str_replace_all(NOME_URNA_CANDIDATO, 'PROFESSOR', 'PROF. ')) %>%
+  mutate(short = str_replace_all(short, '\\(.*?\\)', '')) %>%
+  mutate(short = str_squish(short)) %>%
+  mutate(short = ifelse(nchar(short) >= 21, word(short, start = 1, end = -2), short)) %>%
+  mutate(short = ifelse(nchar(short) >= 21, word(short, start = 1, end = -2), short)) %>%
+  mutate(NOME_URNA_CANDIDATO = str_squish(short)) %>%
+  left_join(party_palette, by = c('NUMERO_CANDIDATO' = 'party'))
+
+#candlist20 = early_polls_2020 %>%
+#  rename(ANO_ELEICAO = year, SIGLA_UE = SG_UE, CODIGO_CARGO = CD_CARGO) %>%
+#  rename(NOME_URNA_CANDIDATO = candidate) %>%
+#  distinct(ANO_ELEICAO, SIGLA_UE, CODIGO_CARGO, NOME_URNA_CANDIDATO, NUMERO_CANDIDATO) %>%
+#  mutate(short = str_replace_all(NOME_URNA_CANDIDATO, 'PROFESSOR', 'PROF. ')) %>%
+#  mutate(short = str_replace_all(short, '\\(.*?\\)', '')) %>%
+#  mutate(short = str_squish(short)) %>%
+#  mutate(short = ifelse(nchar(short) >= 21, word(short, start = 1, end = -2), short)) %>%
+#  mutate(short = ifelse(nchar(short) >= 21, word(short, start = 1, end = -2), short)) %>%
+#  mutate(NOME_URNA_CANDIDATO = str_squish(short)) %>%
+#  group_by(SIGLA_UE) %>%
+#  mutate(party_name = '?', party = '?') %>%
+#  mutate(party_color = brew_cand_colors(n())) %>%
+#  ungroup() %>%
+#  mutate(NUM_TURNO = 1)
 
 fake_candlist = crossing(
   ANO_ELEICAO = c(2012, 2014, 2016, 2018, 2020),
@@ -141,10 +150,27 @@ fake_candlist = crossing(
   mutate(NUMERO_CANDIDATO = 99, NOME_URNA_CANDIDATO = 'BRANCOS / NULOS / OUTROS') %>%
   left_join(party_palette, by = c('NUMERO_CANDIDATO' = 'party'))
 
-candlist = bind_rows(candlist_old, candlist20, fake_candlist)
+candlist = bind_rows(candlist_old, candlist_20_tse, fake_candlist)#,candlist20)
 
-prepare_chart_data = function(yr, city, rnd, cargo = 11) {
+prepare_chart_data = function(yr, city, rnd, cargo = 11, mode) {
   wma_n = 5
+  
+  if (yr == 2020) {
+    if (mode == 1) {
+      polls = global_polls %>%
+        filter(DT_FIM_PESQUISA >= make_date(2020, 9, 1)) %>%
+        group_by(NR_IDENTIFICACAO_PESQUISA, company_id, SG_UE, polled_UE, CD_CARGO) %>%
+        filter(n_distinct(estimulada) == 1 | estimulada == 1) %>%
+        ungroup()
+    } else {
+      polls = global_polls %>%
+        group_by(NR_IDENTIFICACAO_PESQUISA, company_id, SG_UE, polled_UE, CD_CARGO) %>%
+        filter((DT_FIM_PESQUISA <= candidate_registry_date & estimulada == 0) | (DT_FIM_PESQUISA > candidate_registry_date & (n_distinct(estimulada) == 1 | estimulada == 1))) %>%
+        ungroup()
+    }
+  } else {
+    polls = global_polls
+  }
   
   pollz = polls %>%
     filter(year == yr & polled_UE == city & CD_CARGO == cargo & turno == rnd) %>%
@@ -195,8 +221,8 @@ prepare_chart_data = function(yr, city, rnd, cargo = 11) {
     )
 }
 
-show_city_chart = function(yr, city, rnd, cargo = 11) {
-  d = prepare_chart_data(yr, city, rnd, cargo)
+show_city_chart = function(yr, city, rnd, cargo = 11, mode) {
+  d = prepare_chart_data(yr, city, rnd, cargo, mode)
   
   d1_with_names = d[[1]] %>%
     left_join(candlist, by = c(
@@ -222,10 +248,11 @@ show_city_chart = function(yr, city, rnd, cargo = 11) {
     ungroup() %>%
     mutate(party_color = fct_rev(fct_reorder(factor(party_color), final_average, median, na.rm = T)))
   
+  print(d2_with_names)
+  
   lbls = unique(d2_with_names$NOME_URNA_CANDIDATO)
   brks = unique(d2_with_names$party_color)
   
-  crd = first(d1_with_names$candidate_registry_date)
   plot = ggplot(d2_with_names, aes(
     x = date,
     y = final_average,
@@ -237,11 +264,16 @@ show_city_chart = function(yr, city, rnd, cargo = 11) {
     xlab('') + ylab('') +
     scale_color_identity(guide = 'legend', breaks = brks, labels = lbls) +
     scale_y_continuous(labels = function(x) paste0(x, '%')) +
-    geom_vline(xintercept = as.numeric(crd), linetype = 'dashed', color = pg_dark_gray) +
     theme_pindograma() +
     theme(legend.title = element_blank()) +
     theme(legend.position = 'bottom') +
     theme(legend.text = element_text(size = 14))
+  
+  if (mode == 2) {
+    crd = first(d1_with_names$candidate_registry_date)
+    plot = plot +
+      geom_vline(xintercept = as.numeric(crd), linetype = 'dashed', color = pg_dark_gray)
+  }
   
   list(plot, d[[1]])
 }
@@ -313,13 +345,19 @@ ui <- fixedPage(
         'round',
         choices = setNames(c(1, 2), c('1º Turno', '2º Turno')),
         selected = 2,
+        justified = T)),
+      
+      hidden(radioGroupButtons(
+        'mode',
+        choices = setNames(c(1, 2), c('Recentes', 'Visão Geral')),
+        selected = 1,
         justified = T))
     ),
   ),
   
   fixedRow(
     column(12,
-      plotlyOutput('aggregatorPlot', width = '100%')
+      plotlyOutput('aggregatorPlot', width = '100%', height = '450px')
     )
   ),
   
@@ -387,6 +425,7 @@ server <- function(input, output, session) {
     output$aggregatorPlot = renderPlotly({})
     output$legend_copy.ui = renderUI({})
     output$table = renderTable({})
+    hideElement('mode')
     hideElement('round')
     hideElement('contractors')
   })
@@ -430,12 +469,7 @@ server <- function(input, output, session) {
       place = word(input$place_cargo, 1, sep = '-')
     }
     
-    number_of_rounds = polls %>%
-      filter(year == values$selected_year & CD_CARGO == cargo & polled_UE == place) %>%
-      distinct(turno) %>%
-      nrow()
-    
-    number_of_rounds = polls %>%
+    number_of_rounds = global_polls %>%
       filter(year == values$selected_year & CD_CARGO == cargo & polled_UE == place) %>%
       distinct(turno) %>%
       nrow()
@@ -446,11 +480,29 @@ server <- function(input, output, session) {
       hideElement('round')
     }
     
+    has_recent_polls = global_polls %>%
+      filter(year == values$selected_year & CD_CARGO == cargo & polled_UE == place) %>%
+      filter(DT_FIM_PESQUISA >= make_date(2020, 9, 1)) %>%
+      nrow() > 0
+    
+    has_general_polls = global_polls %>%
+      filter(year == values$selected_year & CD_CARGO == cargo & polled_UE == place) %>%
+      group_by(NR_IDENTIFICACAO_PESQUISA, company_id, SG_UE, polled_UE, CD_CARGO) %>%
+      filter((DT_FIM_PESQUISA <= candidate_registry_date & estimulada == 0) | (DT_FIM_PESQUISA > candidate_registry_date & (n_distinct(estimulada) == 1 | estimulada == 1))) %>%
+      ungroup() %>%
+      nrow() > 0
+    
+    if (input$current_or_not == '2020' & has_recent_polls & has_general_polls) {
+      showElement('mode')
+    } else {
+      hideElement('mode')
+    }
+    
     values$selected_place_cargo = T
   })
   
-  observeEvent(c(input$width, input$year, input$place_cargo, input$round), {
-    req(input$width, input$year, input$place_cargo)
+  observeEvent(c(input$width, input$year, input$place_cargo, input$round, input$mode), {
+    req(input$width, input$year, input$place_cargo, input$round, input$mode)
     
     if (!values$selected_place_cargo) {
       return()
@@ -464,7 +516,7 @@ server <- function(input, output, session) {
       place = word(input$place_cargo, 1, sep = '-')
     }
     
-    number_of_rounds = polls %>%
+    number_of_rounds = global_polls %>%
       filter(year == values$selected_year & CD_CARGO == cargo & polled_UE == place) %>%
       distinct(turno) %>%
       nrow()
@@ -476,12 +528,51 @@ server <- function(input, output, session) {
       round = 1
     }
     
-    plot_ = show_city_chart(values$selected_year, place, round, cargo)
+    has_recent_polls = global_polls %>%
+      filter(year == values$selected_year & CD_CARGO == cargo & polled_UE == place) %>%
+      filter(DT_FIM_PESQUISA >= make_date(2020, 9, 1)) %>%
+      nrow() > 0
+    
+    has_general_polls = global_polls %>%
+      filter(year == values$selected_year & CD_CARGO == cargo & polled_UE == place) %>%
+      group_by(NR_IDENTIFICACAO_PESQUISA, company_id, SG_UE, polled_UE, CD_CARGO) %>%
+      filter((DT_FIM_PESQUISA <= candidate_registry_date & estimulada == 0) | (DT_FIM_PESQUISA > candidate_registry_date & (n_distinct(estimulada) == 1 | estimulada == 1))) %>%
+      ungroup() %>%
+      nrow() > 0
+    
+    if (input$current_or_not == '2020') {
+      if (has_general_polls & has_recent_polls) {
+        mode = input$mode
+      } else if (!has_general_polls) {
+        mode = 1
+      } else {
+        mode = 2
+      }
+    } else {
+      mode = 2
+    }
+    
+    plot_ = show_city_chart(values$selected_year, place, round, cargo, mode = mode)
     
     plot = plot_[[1]]
     
     our_polls = plot_[[2]]
     number_cands = length(unique(our_polls$NUMERO_CANDIDATO))
+    
+    if (input$current_or_not == '2020' & mode == 1) {
+      annt = list()
+    } else {
+      annt = list(
+        x = as.numeric(first(our_polls$candidate_registry_date)) - 3,
+        xref = 'x',
+        y = 0,
+        yref = 'paper',
+        text = 'prazo final para registro de candidaturas',
+        textangle = -90,
+        font = list(size = 10, color = pg_dark_gray),
+        showarrow = F
+      )
+    }
     
     output$aggregatorPlot = renderPlotly({
       ggplotly(plot, tooltip = 'text') %>%
@@ -503,15 +594,9 @@ server <- function(input, output, session) {
             ticklen = 8
           ),
           spikedistance = -1,
-          annotations = list(
-            x = as.numeric(first(our_polls$candidate_registry_date)) - 3,
-            xref = 'x',
-            y = 0,
-            yref = 'paper',
-            text = 'prazo final para registro de candidaturas',
-            textangle = -90,
-            font = list(size = 10, color = pg_dark_gray),
-            showarrow = F
+          annotations = annt,
+          legend = list(
+            traceorder = 'reversed'
           )
         ) %>%
         style(hoverinfo = 'skip', traces = (number_cands + 1):(number_cands * 2))
