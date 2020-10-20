@@ -242,7 +242,7 @@ show_city_chart = function(yr, city, rnd, cargo = 11, mode) {
       'NUMERO_CANDIDATO' = 'NUMERO_CANDIDATO',
       'turno' = 'NUM_TURNO'
     )) %>%
-    mutate(NOME_URNA_CANDIDATO = str_to_title(paste0(NOME_URNA_CANDIDATO, '  '))) %>%
+    mutate(NOME_URNA_CANDIDATO = ifelse(NUMERO_CANDIDATO != 99, paste0(str_to_title(NOME_URNA_CANDIDATO), ' (', party_name, ')  '), str_to_title(NOME_URNA_CANDIDATO))) %>%
     group_by(NUMERO_CANDIDATO) %>%
     mutate(NOME_URNA_CANDIDATO = ifelse(n_distinct(NOME_URNA_CANDIDATO) == 1, NOME_URNA_CANDIDATO, paste0('Candidato(a) do ', party_name, '  '))) %>%
     ungroup() %>%
@@ -623,7 +623,7 @@ server <- function(input, output, session) {
       )) %>%
       left_join(rating %>% select(-pretty_name), by = 'company_id') %>%
       mutate(grade = ifelse(is.na(grade), '-', grade)) %>%
-      mutate(NOME_URNA_CANDIDATO = str_to_title(NOME_URNA_CANDIDATO)) %>%
+      mutate(NOME_URNA_CANDIDATO = ifelse(NUMERO_CANDIDATO != 99, paste0(str_to_title(NOME_URNA_CANDIDATO), ' (', party_name, ')  '), str_to_title(NOME_URNA_CANDIDATO))) %>%
       filter(ANO_ELEICAO != 2018 | SG_UE != 'BR' | NUMERO_CANDIDATO != 13 | (NOME_URNA_CANDIDATO == 'Lula' & estimulada == 0) | (NOME_URNA_CANDIDATO == 'Fernando Haddad' & (estimulada == 1 | is.na(estimulada)))) %>% # URGENT FIXME
       pivot_wider(
         c(NR_IDENTIFICACAO_PESQUISA, DT_FIM_PESQUISA, DT_INICIO_PESQUISA,
