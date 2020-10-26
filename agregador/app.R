@@ -248,8 +248,6 @@ show_city_chart = function(yr, city, rnd, cargo = 11, mode) {
     ungroup() %>%
     mutate(party_color = fct_rev(fct_reorder(factor(party_color), final_average, median, na.rm = T)))
   
-  print(d2_with_names)
-  
   lbls = unique(d2_with_names$NOME_URNA_CANDIDATO)
   brks = unique(d2_with_names$party_color)
   
