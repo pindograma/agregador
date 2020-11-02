@@ -31,7 +31,7 @@ polls = bind_rows(early_polls, late_polls, early_polls_2020, recent_polls_2020) 
          result, DT_INICIO_PESQUISA, DT_FIM_PESQUISA, self_hired, turno,
          NUMERO_CANDIDATO, company_id, pretty_name, first_round_date, second_round_date,
          candidate_registry_date, partisan, hirer, imputed_ci, imputed_error,
-         undecided) %>%
+         undecided, QT_ENTREVISTADOS) %>%
   group_split(year, CD_CARGO, SG_UE, turno, NR_IDENTIFICACAO_PESQUISA, company_id, estimulada) %>%
   map_dfr(function(x) {
     r = rbind(x, x[1,])
@@ -42,5 +42,12 @@ polls = bind_rows(early_polls, late_polls, early_polls_2020, recent_polls_2020) 
     r
   }) %>%
   ungroup()
+
+bind_rows(
+  read_csv('data/cities.csv', col_types = cols(SG_UE = col_character())),
+  read_csv('data/cities_2020.csv', col_types = cols(SG_UE = col_character()))
+) %>%
+  distinct() %>%
+  write.csv('data/cities_preprocessed.csv', row.names = F)
 
 polls %>% write.csv('data/preprocessed_polls.csv', row.names = F)

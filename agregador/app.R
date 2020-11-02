@@ -20,7 +20,7 @@ source('constants.R')
 #early_polls_2020 = read_csv('data/early_polls_2020.csv')
 global_polls = read_csv('data/preprocessed_polls.csv')
 
-cities = read_csv('data/cities.csv') %>%
+cities = read_csv('data/cities_preprocessed.csv') %>%
   expand_grid(year = c(2012, 2014, 2016, 2018, 2020)) %>%
   semi_join(global_polls, by = c('SG_UE', 'year')) %>%
   mutate(order = case_when(
