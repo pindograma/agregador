@@ -459,7 +459,7 @@ server <- function(input, output, session) {
       ungroup() %>%
       nrow() > 0
     
-    if (input$current_or_not == '2020' & has_recent_polls & has_general_polls) {
+    if (input$current_or_not == '2020' & has_recent_polls & has_general_polls & (number_of_rounds == 1 | as.double(input$round) == 1)) {
       showElement('mode')
     } else {
       hideElement('mode')
@@ -517,6 +517,12 @@ server <- function(input, output, session) {
       }
     } else {
       mode = 2
+    }
+    
+    if (input$current_or_not == '2020' & has_recent_polls & has_general_polls & (number_of_rounds == 1 | as.double(input$round) == 1)) {
+      showElement('mode')
+    } else {
+      hideElement('mode')
     }
     
     plot_ = show_city_chart(values$selected_year, place, round, cargo, mode = mode)
