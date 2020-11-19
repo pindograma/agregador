@@ -10,7 +10,6 @@ library(shinyWidgets)
 library(shinyjs)
 library(cowplot)
 library(plotly)
-library(RColorBrewer)
 library(forcats)
 
 Rcpp::sourceCpp('polling_average.cpp')
@@ -91,20 +90,6 @@ general_elections = tibble(
   )
 )
 
-brew_cand_colors = function(n) {
-  if (n < 3) {
-    brks = if (n == 1) c('#9e0142') else c('#9e0142', '#3288bd')
-  } else if (n <= 11) {
-    brks = brewer.pal(n, 'Spectral')
-  } else {
-    qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
-    col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-    brks = sample(col_vector, n)
-  }
-  
-  brks
-}
-
 rating = read_csv('data/pollster_rating_2020_final.csv')
 
 candlist_old = read_csv('data/pindograma_candlist.csv') %>%
@@ -125,22 +110,6 @@ candlist_20_tse = read_csv('data/pindograma_candlist_2020.csv') %>%
   mutate(NOME_URNA_CANDIDATO = str_squish(short)) %>%
   left_join(party_palette, by = c('NUMERO_CANDIDATO' = 'party'))
 
-#candlist20 = early_polls_2020 %>%
-#  rename(ANO_ELEICAO = year, SIGLA_UE = SG_UE, CODIGO_CARGO = CD_CARGO) %>%
-#  rename(NOME_URNA_CANDIDATO = candidate) %>%
-#  distinct(ANO_ELEICAO, SIGLA_UE, CODIGO_CARGO, NOME_URNA_CANDIDATO, NUMERO_CANDIDATO) %>%
-#  mutate(short = str_replace_all(NOME_URNA_CANDIDATO, 'PROFESSOR', 'PROF. ')) %>%
-#  mutate(short = str_replace_all(short, '\\(.*?\\)', '')) %>%
-#  mutate(short = str_squish(short)) %>%
-#  mutate(short = ifelse(nchar(short) >= 21, word(short, start = 1, end = -2), short)) %>%
-#  mutate(short = ifelse(nchar(short) >= 21, word(short, start = 1, end = -2), short)) %>%
-#  mutate(NOME_URNA_CANDIDATO = str_squish(short)) %>%
-#  group_by(SIGLA_UE) %>%
-#  mutate(party_name = '?', party = '?') %>%
-#  mutate(party_color = brew_cand_colors(n())) %>%
-#  ungroup() %>%
-#  mutate(NUM_TURNO = 1)
-
 fake_candlist = crossing(
   ANO_ELEICAO = c(2012, 2014, 2016, 2018, 2020),
   SIGLA_UE = cities$SG_UE,
@@ -150,7 +119,7 @@ fake_candlist = crossing(
   mutate(NUMERO_CANDIDATO = 99, NOME_URNA_CANDIDATO = 'BRANCOS / NULOS / OUTROS') %>%
   left_join(party_palette, by = c('NUMERO_CANDIDATO' = 'party'))
 
-candlist = bind_rows(candlist_old, candlist_20_tse, fake_candlist)#,candlist20)
+candlist = bind_rows(candlist_old, candlist_20_tse, fake_candlist)
 
 prepare_chart_data = function(yr, city, rnd, cargo = 11, mode) {
   wma_n = 5
