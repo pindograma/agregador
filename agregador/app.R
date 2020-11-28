@@ -639,6 +639,8 @@ server <- function(input, output, session) {
     
     our_polls_output = our_polls_pre_output %>%
       select(Empresa, Data, Tipo, contains('cand'))
+
+    print(our_polls_pre_output %>% select(NR_IDENTIFICACAO_PESQUISA, Data), n = 100)
     
     diagonalize = function(x) {
       paste0(
